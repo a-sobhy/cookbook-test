@@ -1,22 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import "./App.css";
-
-const recipes = [
-  {
-    author: "Jim",
-    name: "Chicken Curry",
-    description: "Delicious spicy chicken curry",
-  },
-  {
-    author: "Aravind",
-    name: "Hamburger",
-    description: "Juicy burger with toppings and a soft bun",
-  },
-];
-
+import RecipeList from "./components/RecipeList";
+import RecipeDetail from "./components/RecipeDetail";
+import { Header } from "./components/Header";
+import { useDispatch } from "react-redux";
+import { fetchMeals, fetchTags } from "./redux/features/filtersSlice";
 function App() {
-  return <div className="App">Let's add some content here</div>;
+  const dispatch = useDispatch();
+
+  const [mounted, setMounted] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      dispatch(fetchTags());
+      setMounted(false);
+    }
+  }, [mounted]);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [selectedRecipe]);
+
+  const handleMenuToggle = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  return (
+    <>
+      <Header onMenuToggle={handleMenuToggle} setMounted={setMounted} />
+      <div className={`compo-container ${isMenuOpen ? "menu-open" : ""}`}>
+        <RecipeList
+          currentRecipe={selectedRecipe}
+          onSelectRecipe={setSelectedRecipe}
+          mounted={mounted}
+          setMounted={setMounted}
+          isMenuOpen={isMenuOpen}
+        />
+
+        <RecipeDetail recipe={selectedRecipe} />
+      </div>
+    </>
+  );
 }
 
 export default App;
